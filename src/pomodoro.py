@@ -36,8 +36,10 @@ class Pomodoro:
 
     def run(self):
         """Main Pomodoro module loop."""
-        self.display_menu()
-        self.handle_menu_input()
+        self.running = True
+        while self.running:
+            self.display_menu()
+            self.handle_menu_input()
 
     def display_menu(self):
         """Display Pomodoro main menu."""
@@ -56,8 +58,23 @@ class Pomodoro:
 
     def handle_menu_input(self):
         """Handle keyboard input for Pomodoro menu."""
-        # Placeholder for menu input handling
-        pass
+        import termios
+        import tty
+        
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.cbreak(fd)
+            key = sys.stdin.read(1)
+            
+            if key == '\x1b':  # Escape
+                self.running = False
+            elif key == '\x03':  # Ctrl+C
+                self.running = False
+            # Add other keys later
+                
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def start_session(self):
         """Start a new Pomodoro session."""

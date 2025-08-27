@@ -66,13 +66,43 @@ class Templates:
 
     def handle_menu_input(self):
         """Handle keyboard input for templates menu."""
-        # Placeholder for menu input handling
-        pass
+        import termios
+        import tty
+        
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.cbreak(fd)
+            key = sys.stdin.read(1)
+            
+            if key == '\x1b':  # Escape
+                self.running = False
+            elif key == '\x03':  # Ctrl+C
+                self.running = False
+            # Add other keys later
+                
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def handle_edit_input(self):
         """Handle keyboard input in template editor."""
-        # Placeholder for edit input handling
-        pass
+        import termios
+        import tty
+        
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.cbreak(fd)
+            key = sys.stdin.read(1)
+            
+            if key == '\x1b':  # Escape - go back to menu
+                self.edit_mode = False
+            elif key == '\x03':  # Ctrl+C
+                self.running = False
+            # Add other keys later
+                
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def load_templates(self):
         """Load templates from templates directory."""

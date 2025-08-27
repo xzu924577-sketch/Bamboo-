@@ -34,6 +34,10 @@ class Tasks:
                 self.display_view_mode()
                 self.handle_view_input()
 
+    def display_menu(self):
+        """Display tasks main menu (alias for display_view_mode)."""
+        self.display_view_mode()
+
     def display_view_mode(self):
         """Display tasks in view mode."""
         os.system('clear')
@@ -88,13 +92,43 @@ class Tasks:
 
     def handle_view_input(self):
         """Handle keyboard input in view mode."""
-        # Placeholder for view mode input handling
-        pass
+        import termios
+        import tty
+        
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.cbreak(fd)
+            key = sys.stdin.read(1)
+            
+            if key == '\x1b':  # Escape
+                self.running = False
+            elif key == '\x03':  # Ctrl+C
+                self.running = False
+            # Add other keys later
+                
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def handle_edit_input(self):
         """Handle keyboard input in edit mode."""
-        # Placeholder for edit mode input handling
-        pass
+        import termios
+        import tty
+        
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.cbreak(fd)
+            key = sys.stdin.read(1)
+            
+            if key == '\x1b':  # Escape - go back to view mode
+                self.edit_mode = False
+            elif key == '\x03':  # Ctrl+C
+                self.running = False
+            # Add other keys later
+                
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def load_tasks(self):
         """Load tasks from markdown file for current date."""

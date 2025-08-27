@@ -68,16 +68,23 @@ class Dashboard:
             key = sys.stdin.read(1)
             
             if key == '\x1b':  # Escape sequence
-                key += sys.stdin.read(2)
-                if key == '\x1b[A':  # Up arrow
-                    self.current_selection = (self.current_selection - 1) % len(self.modules)
-                elif key == '\x1b[B':  # Down arrow
-                    self.current_selection = (self.current_selection + 1) % len(self.modules)
-                elif key == '\x1b':  # Esc alone
+                try:
+                    # Try to read additional characters for escape sequences
+                    key += sys.stdin.read(2)
+                    if key == '\x1b[A':  # Up arrow
+                        self.current_selection = (self.current_selection - 1) % len(self.modules)
+                    elif key == '\x1b[B':  # Down arrow
+                        self.current_selection = (self.current_selection + 1) % len(self.modules)
+                except:
+                    # If reading fails, treat as single Esc
                     self.running = False
+            elif key == '\x1b':  # Esc alone (if no additional chars)
+                self.running = False
             elif key == '\r' or key == '\n':  # Enter
                 self.select_module()
             elif key == '\x03':  # Ctrl+C
+                self.running = False
+            elif key.lower() == 'q':  # Q key for quit
                 self.running = False
                 
         finally:
@@ -85,6 +92,34 @@ class Dashboard:
 
     def select_module(self):
         """Launch the selected module."""
-        selected_module = self.modules[self.current_selection]
-        module_instance = selected_module['class']()
-        module_instance.run()
+        try:
+            selected_module = self.modules[self.current_selection]
+            module_instance = selected_module['class']()
+            module_instance.run()
+        except Exception as e:
+            # Handle module errors gracefully
+            self.show_error(f"Error in {selected_module['name']}: {str(e)}")
+
+    def show_error(self, message):
+        """Display error message and wait for user input."""
+        os.system('clear')
+        print("\033[31m")  # Red color for errors
+        print("╭─────────────────────────────────────╮")
+        print("│                Error                │")
+        print("├─────────────────────────────────────┤")
+        print(f"│ {message[:35]:<35} │")
+        print("│                                     │")
+        print("│ Press any key to continue...        │")
+        print("╰─────────────────────────────────────╯")
+        print("\033[0m")
+        
+        # Wait for keypress
+        import termios
+        import tty
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.cbreak(fd)
+            sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)

@@ -58,8 +58,23 @@ class Habits:
 
     def handle_input(self):
         """Handle keyboard input for habits navigation."""
-        # Placeholder for input handling
-        pass
+        import termios
+        import tty
+        
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.cbreak(fd)
+            key = sys.stdin.read(1)
+            
+            if key == '\x1b':  # Escape
+                self.running = False
+            elif key == '\x03':  # Ctrl+C
+                self.running = False
+            # Add other keys later
+                
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def load_habits(self):
         """Load list of available habits from vault."""
