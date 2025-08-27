@@ -1,0 +1,12 @@
+# Bamboo Productivity Dependencies
+# No external dependencies required - uses only Python standard library
+
+# The app is designed to work with minimal dependencies
+# to ensure compatibility with Linux terminals and Android Termux
+
+# Python 3.7+ required for:
+# - pathlib (Path handling)
+# - json (configuration management)
+# - datetime (date/time operations)
+# - termios/tty (terminal input handling)
+# - os/sys (system operations)
